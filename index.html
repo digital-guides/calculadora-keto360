@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculadora Keto – PWA</title>
+<meta name="theme-color" content="#68B684">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<style>
+  * {{ box-sizing: border-box; }}
+  html, body {{ height: 100%; }}
+  body {{
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(135deg, #5a9f6f 0%, #FF8C42 100%);
+    color: #2F2F2F;
+  }}
+  .app {{
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: #FFF8E7;
+    border-radius: 16px;
+    box-shadow: 0 25px 60px rgba(0,0,0,.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }}
+  header {{
+    background: linear-gradient(45deg,#68B684,#5a9f6f);
+    color: white; padding: 16px 20px;
+    display:flex; align-items:center; gap:12px; justify-content:space-between;
+  }}
+  .brand {{ display:flex; align-items:center; gap:12px; }}
+  .brand img {{ width:56px; height:56px; object-fit:contain; border-radius:12px; background: rgba(255,255,255,.1); }}
+  .brand h1 {{ font-size: 1.3rem; margin:0; }}
+  .install-btn {{
+     display:none; border:none; padding:10px 14px; border-radius:999px; font-weight:700;
+     background: linear-gradient(135deg,#FF8C42,#F4A261); color:#fff; cursor:pointer;
+     box-shadow: 0 6px 18px rgba(244,162,97,.35);
+  }}
+  .tabs {{ display:flex; background:#fff; }}
+  .tab {{ flex:1; padding:14px 16px; font-weight:700; border:0; cursor:pointer; background:#f7f9fb; border-bottom:3px solid transparent; }}
+  .tab.active {{ background:#fff; color:#68B684; border-bottom-color:#68B684; }}
+  .views {{ position:relative; flex:1; }}
+  iframe {{ position:absolute; inset:0; width:100%; height:100%; border:0; display:none; background:#fff; }}
+  iframe.active {{ display:block; }}
+  @media (max-width:768px) {{
+    .app {{ border-radius:0; }}
+    .brand h1 {{ font-size:1.05rem; }}
+  }}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand">
+    <img src="assets/logo.png" alt="Keto Air Fryer 360">
+    <h1>Keto Air Fryer 360° – Calculadora</h1>
+  </div>
+  <button id="installBtn" class="install-btn">Instalar app</button>
+</header>
+<nav class="tabs">
+  <button id="tabCalc" class="tab active" data-target="frameCalc">🧮 Calculadora</button>
+  <button id="tabGuide" class="tab" data-target="frameGuide">📖 Guía</button>
+</nav>
+<section class="views">
+  <iframe id="frameCalc" class="active" src="calculator.html" title="Calculadora"></iframe>
+  <iframe id="frameGuide" src="guide.html" title="Guía de uso"></iframe>
+</section>
+</div>
+<script>
+  // Tab switching
+  const tabs = document.querySelectorAll('.tab');
+  const frames = document.querySelectorAll('iframe');
+  function setActive(targetId) {{
+    tabs.forEach(t=>t.classList.toggle('active', t.dataset.target===targetId));
+    frames.forEach(f=>f.classList.toggle('active', f.id===targetId));
+    const u = new URL(window.location);
+    u.searchParams.set('tab', targetId==='frameGuide'?'guia':'calculadora');
+    history.replaceState(null,'',u.toString());
+  }}
+  tabs.forEach(tab=>tab.addEventListener('click', ()=>setActive(tab.dataset.target)));
+  const initialTab = new URLSearchParams(location.search).get('tab');
+  if(initialTab==='guia') setActive('frameGuide');
+
+  // Install prompt
+  let deferredPrompt;
+  const installBtn = document.getElementById('installBtn');
+  window.addEventListener('beforeinstallprompt', (e)=>{{
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.style.display = 'inline-block';
+  }});
+  installBtn.addEventListener('click', async ()=>{{
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const choice = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    installBtn.style.display='none';
+  }});
+
+  // Service worker
+  if ('serviceWorker' in navigator) {{
+    window.addEventListener('load', ()=>{{
+      navigator.serviceWorker.register('./service-worker.js')
+        .catch(console.error);
+    }});
+  }}
+</script>
+</body>
+</html>
