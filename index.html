@@ -1847,9 +1847,18 @@ window.addEventListener('appinstalled', (evt) => {
       });
   })();
 </script>
-  
+ <!-- Solicitar almacenamiento persistente (evita que el sistema borre tus datos) -->
+<script>
+  if (navigator.storage && navigator.storage.persist) {
+    navigator.storage.persist()
+      .then(ok => console.log('[PWA] Persistencia solicitada:', ok))
+      .catch(err => console.warn('[PWA] Persistencia no disponible:', err));
+  }
+</script>
+ 
 </body>
 </html>
+
 
 
 
