@@ -5,14 +5,16 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Calculadora Keto - Tu Compañero Digital</title>
     
-    <!-- PWA Meta Tags -->
-    <link rel="manifest" href="manifest.webmanifest"/>
-    <meta name="theme-color" content="#68B684"/>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Keto360">
-    <link rel="apple-touch-icon" href="icono-192.png">
-    <link rel="manifest" href="manifest.webmanifest"/>
+   <!-- PWA Meta Tags -->
+<meta name="theme-color" content="#68B684">
+<link rel="manifest" href="/calculadora-keto360/manifiesto.webmanifest">
+<link rel="apple-touch-icon" href="/calculadora-keto360/icono-192.png">
+
+<!-- iOS support -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Keto360">
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -1808,8 +1810,27 @@ window.addEventListener('appinstalled', (evt) => {
   installBtn.style.display = 'none';
 });
 </script> 
+  <!-- Registro del Service Worker -->
+<script>
+  (function () {
+    if (!('serviceWorker' in navigator)) return;
+
+    const SCOPE = '/calculadora-keto360/';
+    const SW_URL = SCOPE + 'sw.js';
+
+    navigator.serviceWorker.register(SW_URL, { scope: SCOPE })
+      .then(reg => {
+        console.log('[PWA] SW registrado con scope:', reg.scope);
+      })
+      .catch(err => {
+        console.error('[PWA] Error registrando SW:', err);
+      });
+  })();
+</script>
+  
 </body>
 </html>
+
 
 
 
