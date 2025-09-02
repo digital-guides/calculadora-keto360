@@ -1931,9 +1931,64 @@ window.addEventListener('appinstalled', (evt) => {
   });
 })();
 </script>
+    
+<script>
+(() => {
+  // Guardamos y restauramos lo que el usuario escribe en los inputs de MACROS
+  const STORE_KEY = 'ketoLastInputs';
+  const FIELDS = ['#weight', '#height', '#age', '#gender', '#activity', '#goal'];
+
+  const $ = (s) => document.querySelector(s);
+  const fields = FIELDS.map($).filter(Boolean);
+
+  function persist() {
+    const data = {};
+    fields.forEach(el => {
+      const key = el.id || el.name;
+      data[key] = el.value;
+    });
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch(e) {}
+  }
+
+  function restore() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+      fields.forEach(el => {
+        const key = el.id || el.name;
+        if (saved[key] != null) el.value = saved[key];
+      });
+    } catch(e) {}
+  }
+
+  // Restaurar al cargar (por si algo resetea en init)
+  document.addEventListener('DOMContentLoaded', () => {
+    restore();
+    // seguir guardando mientras el usuario escribe
+    fields.forEach(el => {
+      el.addEventListener('input', persist);
+      el.addEventListener('change', persist);
+    });
+  });
+
+  // Después de calcular, vuelve a poner los valores por si algún handler resetea
+  const calcBtn = document.querySelector('#calcBtn, .calc-btn, button[data-action="calculate"]');
+  if (calcBtn) calcBtn.addEventListener('click', () => setTimeout(restore, 0));
+
+  // (Opcional) si tienes <form id="macrosForm">, evita que se haga reset sobre ese form
+  const macrosForm = document.getElementById('macrosForm');
+  if (macrosForm) {
+    const origReset = HTMLFormElement.prototype.reset;
+    HTMLFormElement.prototype.reset = function() {
+      if (this === macrosForm) return; // no resetees el de macros
+      return origReset.call(this);
+    };
+  }
+})();
+</script>
 
 </body>
 </html>
+
 
 
 
