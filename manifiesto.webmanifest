@@ -1,21 +1,21 @@
 {
   "name": "Calculadora Keto 360",
   "short_name": "Keto360",
-  "description": "Calculadora completa para dieta cetogénica con seguimiento de macros",
-  "start_url": "./",
+  "id": "/calculadora-keto360/",
+  "start_url": "/calculadora-keto360/index.html",
+  "scope": "/calculadora-keto360/",
   "display": "standalone",
-  "background_color": "#68B684",
+  "background_color": "#ffffff",
   "theme_color": "#68B684",
-  "orientation": "portrait",
   "icons": [
     {
-      "src": "icono-192.png",
+      "src": "/calculadora-keto360/icono-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icono-512.png", 
+      "src": "/calculadora-keto360/icono-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
