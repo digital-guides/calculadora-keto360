@@ -217,7 +217,26 @@
         .results-card .meal-entry .meal-macros {
             color: #4b4b4b !important;
         }
-    </style>
+        /* === Estilos del enlace de ayuda en el header === */
+
+/* Asegura que el header sea el contenedor de referencia */
+.header { position: relative; }
+
+/* Pastillita secundaria: ¿Cómo usarla? */
+.help-link{
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(255,255,255,.92); color: #2F2F2F;
+  padding: 6px 10px; border-radius: 999px; font-size: 12px;
+  text-decoration: none; box-shadow: 0 2px 6px rgba(0,0,0,.15);
+  z-index: 10;
+}
+.help-link:active{ transform: scale(0.98); }
+
+@media (max-width:768px){
+  .help-link{ top:10px; right:10px; font-size:12px; padding:6px 9px; }
+}
+
+   </style>
 </head>
 <body>
 <!-- Install PWA Button -->
@@ -227,6 +246,7 @@
   <div class="brand-logo"><img alt="Keto Air Fryer 360" src="https://i.imgur.com/hJajfbU.jpg"/></div>
   <h1>Calculadora Keto</h1>
   <p>Tu compañero digital para una vida cetogénica sin complicaciones</p>
+  <a href="/calculadora-keto360/guia.html" class="help-link" aria-label="Abrir guía de uso">¿Cómo usarla?</a>
 </div>
 
 <div class="tabs">
@@ -1830,6 +1850,7 @@ window.addEventListener('appinstalled', (evt) => {
   
 </body>
 </html>
+
 
 
 
