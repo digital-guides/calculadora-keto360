@@ -235,6 +235,13 @@
 @media (max-width:768px){
   .help-link{ top:10px; right:10px; font-size:12px; padding:6px 9px; }
 }
+/* Barra de backup (exportar/importar) en el tab de alimentos */
+.backup-bar{
+  display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+  background:#f5f7f6; border:1px solid #e1ece6;
+  padding:8px 10px; border-radius:12px; margin:10px 0 12px;
+}
+.backup-bar .btn.btn-small{ box-shadow:0 2px 8px rgba(0,0,0,.08); }
 
    </style>
 </head>
@@ -360,6 +367,14 @@
     </div>
     <button class="btn" onclick="addCustomFood()">Agregar Alimento</button>
   </div>
+    <!-- Backup de alimentos (exportar/importar) -->
+<div class="backup-bar">
+  <button id="exportFoodsBtn" class="btn btn-small">⬇️ Exportar alimentos</button>
+  <label class="importLabel btn btn-small" style="display:inline-flex;align-items:center;gap:6px;">
+    ⬆️ Importar alimentos
+    <input type="file" id="importFoodsInput" accept=".json,application/json" hidden>
+  </label>
+</div>
   <div class="all-foods-container" id="allFoodsList"></div>
 </div>
 </div>
@@ -1855,9 +1870,71 @@ window.addEventListener('appinstalled', (evt) => {
       .catch(err => console.warn('[PWA] Persistencia no disponible:', err));
   }
 </script>
- 
+ <script>
+(() => {
+  // Clave donde se guardan los alimentos personalizados en localStorage
+  const KEY = 'ketoCustomFoods';
+
+  const $ = (s) => document.querySelector(s);
+  const normalize = (s) => (s||'').trim().toLowerCase();
+
+  function getCustom() {
+    try { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
+    catch { return []; }
+  }
+  function setCustom(arr) { localStorage.setItem(KEY, JSON.stringify(arr)); }
+
+  // Exportar SOLO personalizados
+  $('#exportFoodsBtn')?.addEventListener('click', () => {
+    const items = getCustom();
+    const payload = { version: 1, exportedAt: new Date().toISOString(), items };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'keto360-alimentos-' + new Date().toISOString().slice(0,10) + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // Importar → fusiona por nombre (no duplica)
+  $('#importFoodsInput')?.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    let data;
+    try { data = JSON.parse(await file.text()); } 
+    catch { alert('Archivo JSON inválido'); e.target.value=''; return; }
+
+    // Acepta {items:[...]} o un array directo
+    const incoming = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
+    if (!Array.isArray(incoming)) { alert('Formato no reconocido'); e.target.value=''; return; }
+
+    const existing = getCustom();
+    const map = new Map(existing.map(f => [normalize(f.name || f.nombre), f]));
+    for (const item of incoming) {
+      const n = normalize(item?.name || item?.nombre);
+      if (!n) continue;
+      if (!map.has(n)) map.set(n, item); // evita duplicados por nombre
+    }
+    const merged = Array.from(map.values());
+    setCustom(merged);
+
+    // Si tu UI tiene funciones para refrescar la lista personalizada, llamalas:
+    try {
+      if (typeof syncFoodDatabaseFromCustom === 'function') syncFoodDatabaseFromCustom();
+      if (typeof renderAllFoods === 'function') renderAllFoods();
+    } catch {}
+
+    alert('Listo ✅ Alimentos personalizados importados/mezclados. Total: ' + merged.length);
+    e.target.value = '';
+  });
+})();
+</script>
+
 </body>
 </html>
+
 
 
 
